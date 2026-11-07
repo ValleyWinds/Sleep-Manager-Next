@@ -16,7 +16,7 @@ from .core_mixin import ALL_SLEEP_SCOPE
 class SleepCommandHandlersMixin:
     """声明插件命令入口"""
 
-    @Command("sleep_help", description="查看睡眠管理Next命令帮助", pattern=r"^/sleep help\s*$")
+    @Command("sleep help", description="查看全部命令帮助", pattern=r"^/sleep help\s*$")
     async def handle_help_command(
         self,
         stream_id: str = "",
@@ -49,7 +49,7 @@ class SleepCommandHandlersMixin:
         await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
-    @Command("sleep_status", description="查看睡眠管理Next状态", pattern=r"^/sleep status\s*$")
+    @Command("sleep status", description="查看当前作用域的睡眠状态", pattern=r"^/sleep status\s*$")
     async def handle_status_command(
         self,
         stream_id: str = "",
@@ -82,7 +82,7 @@ class SleepCommandHandlersMixin:
         await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
-    @Command("sleep_wake", description="手动唤醒睡眠管理Next", pattern=r"^/sleep wake\s*$")
+    @Command("sleep wake", description="手动唤醒当前作用域，不解除全部聊天流睡眠", pattern=r"^/sleep wake\s*$")
     async def handle_wake_command(
         self,
         stream_id: str = "",
@@ -113,7 +113,7 @@ class SleepCommandHandlersMixin:
         await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
-    @Command("sleep_wake_all", description="手动唤醒全部聊天流", pattern=r"^/sleep wake_all\s*$")
+    @Command("sleep wake_all", description="手动唤醒全部聊天流，解除所有睡眠作用域", pattern=r"^/sleep wake_all\s*$")
     async def handle_wake_all_command(
         self,
         stream_id: str = "",
@@ -135,7 +135,7 @@ class SleepCommandHandlersMixin:
         await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
-    @Command("sleep_now", description="按当前作息引导 Bot 自己决定是否入睡", pattern=r"^/sleep now\s*$")
+    @Command("sleep now", description="允许入睡时间内记录一次管理员催睡，等 Bot 自己确认", pattern=r"^/sleep now\s*$")
     async def handle_sleep_now_command(
         self,
         stream_id: str = "",
@@ -194,7 +194,7 @@ class SleepCommandHandlersMixin:
         # _build_pending_sleep_request_planner_context）。拦截会让催睡引导失效。
         return True, message, False
 
-    @Command("sleep_force", description="无视作息窗口让睡眠管理Next立即入睡", pattern=r"^/sleep forced\s*$")
+    @Command("sleep forced", description="无视入睡窗口，让当前作用域立即睡眠（管理命令）", pattern=r"^/sleep forced\s*$")
     async def handle_sleep_force_command(
         self,
         stream_id: str = "",
@@ -213,7 +213,7 @@ class SleepCommandHandlersMixin:
             user_id=user_id,
         )
 
-    @Command("sleep_force_all", description="无视作息窗口让全部聊天流立即入睡", pattern=r"^/sleep forced_all\s*$")
+    @Command("sleep forced_all", description="无视入睡窗口，让全部聊天流进入睡眠（管理命令）", pattern=r"^/sleep forced_all\s*$")
     async def handle_sleep_force_all_command(
         self,
         stream_id: str = "",
