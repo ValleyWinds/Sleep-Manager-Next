@@ -33,16 +33,11 @@ PYTHONPATH=<SDK 副本路径> uv run --with pytest --with pydantic python -m pyt
 3. 命令在 WebUI 聊天页发（本地聊天室用户 ID 为 `owner`）；WebUI「插件管理」可见组件与配置表单
 4. 注意：改 `config.toml` 的字段名时，宿主会把磁盘上的未知旧键原样保留，替换字段名要手工删旧键插新键；无 config_model 的探针插件打开配置页报「插件未提供配置定义」是正常现象
 
-## 分支与发版
+## 发布规范
 
-- 工作分支 `dev`，自由 push；**`main` 为发版分支，合入与推送前需维护者确认**
-- 发版流程：
-  1. dev 上验证完毕（离线测试全绿 + 实例实测）
-  2. bump `_manifest.json` 的 `version`（严格三段式），`CHANGELOG.md` 「未发布」段改为实际版本号
-  3. 合 dev → main，打与 `version` 一致的 Tag（`v<版本号>`，Tag 一经收录不可变，修复发新版本号）
-  4. `gh release create`，Notes 只写用户可感知的更新要点（分「主要功能 / 细节」，一个功能一行）
+- `_manifest.json` 的 `version` 用严格三段式（X.Y.Z），发布 Tag 与 `version` 一致（`v<版本号>`，Tag 一经收录不可变，后续修复发新版本号）；插件 `id` 不得变更，否则插件中心拒收
+- `CHANGELOG.md` 逐版本记录用户可感知的更新要点；Release Notes 只写更新要点（分「主要功能 / 细节」，一个功能一行），不写简介 / 安装 / 配置（那些归 README）
 - 发版前自检：
   - manifest 权威校验（宿主同款校验器）：在 `<MaiBot 实例目录>` 执行
     `uv run python -c "from src.plugin_runtime.runner.manifest_validator import PluginManifest; PluginManifest.model_validate(json.load(open('<插件>/_manifest.json', encoding='utf-8')))"`
   - 泄漏扫描：`git grep` 检查本机路径、邮箱、服务器 IP 等不入库；**提交前必做**，文档里的环境信息一律用 `<占位符>` 表述
-  - Tag 必须等于 manifest `version`，插件 ID 不得变更，否则插件中心拒收
