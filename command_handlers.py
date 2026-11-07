@@ -22,6 +22,7 @@ class SleepCommandHandlersMixin:
 
         del kwargs
 
+        self.ctx.logger.info(f"收到命令 /sleep help: stream={stream_id or '未知'}")
         lines = [
             "[睡眠管理] 命令帮助",
             "/sleep help - 查看本帮助",
@@ -54,6 +55,7 @@ class SleepCommandHandlersMixin:
 
         del kwargs
 
+        self.ctx.logger.info(f"收到命令 /sleep status: stream={stream_id or '未知'}")
         self._allow_control_reply()
         command_message = self._message_stub_for_command(stream_id, group_id)
         scope_key, scope_label = self._sleep_scope_for_message(command_message)
@@ -86,6 +88,7 @@ class SleepCommandHandlersMixin:
 
         del kwargs
 
+        self.ctx.logger.info(f"收到命令 /sleep wake: stream={stream_id or '未知'}")
         self._allow_control_reply()
         command_message = self._message_stub_for_command(stream_id, group_id)
         scope_key, scope_label = self._sleep_scope_for_message(command_message)
@@ -117,6 +120,7 @@ class SleepCommandHandlersMixin:
         del group_id
         del kwargs
 
+        self.ctx.logger.info(f"收到命令 /sleep wake_all: stream={stream_id or '未知'}")
         self._allow_control_reply()
         wake_count = self._wake_all_sleep_records("手动全部唤醒")
         if wake_count:
@@ -139,12 +143,14 @@ class SleepCommandHandlersMixin:
         del kwargs
 
         self._allow_control_reply()
+        self.ctx.logger.info(f"收到命令 /sleep now: stream={stream_id or '未知'} user={user_id or '未知'}")
         if not self.config.control.force_sleep_commands_enabled:
             message = "[睡眠管理] 管理入睡命令已关闭"
             await self.ctx.send.text(message, stream_id)
             return True, message, True
 
         if not self._can_use_force_sleep_command(user_id):
+            self.ctx.logger.warning(f"命令 /sleep now 被权限拒绝: user={user_id or '未知'}")
             message = "[睡眠管理] 你没有使用管理入睡命令的权限"
             await self.ctx.send.text(message, stream_id)
             return True, message, True
@@ -195,6 +201,7 @@ class SleepCommandHandlersMixin:
 
         del kwargs
 
+        self.ctx.logger.info(f"收到命令 /sleep forced: stream={stream_id or '未知'} user={user_id or '未知'}")
         return await self._handle_sleep_force_command(
             stream_id=stream_id,
             group_id=group_id,
@@ -214,6 +221,7 @@ class SleepCommandHandlersMixin:
         del kwargs
         del group_id
 
+        self.ctx.logger.info(f"收到命令 /sleep forced_all: stream={stream_id or '未知'} user={user_id or '未知'}")
         return await self._handle_sleep_force_command(
             stream_id=stream_id,
             group_id="",
@@ -238,6 +246,9 @@ class SleepCommandHandlersMixin:
             return True, message, True
 
         if not self._can_use_force_sleep_command(user_id):
+            self.ctx.logger.warning(
+                f"命令 /sleep {'forced_all' if force_all else 'forced'} 被权限拒绝: user={user_id or '未知'}"
+            )
             message = "[睡眠管理] 你没有使用管理入睡命令的权限"
             await self.ctx.send.text(message, stream_id)
             return True, message, True
