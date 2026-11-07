@@ -18,6 +18,7 @@ SECTION_TITLES: dict[str, LocalizedText] = {
     "group_schedule": {"zh_CN": "分群作息"},
     "control": {"zh_CN": "拦截"},
     "sleep_review": {"zh_CN": "睡醒回顾"},
+    "logging": {"zh_CN": "日志"},
 }
 
 SECTION_DESCRIPTIONS: dict[str, LocalizedText] = {
@@ -35,6 +36,9 @@ SECTION_DESCRIPTIONS: dict[str, LocalizedText] = {
     "sleep_review": {
         "zh_CN": "醒来后整理睡眠期间被拦截的聊天记录，不会自动回复历史消息",
     },
+    "logging": {
+        "zh_CN": "插件运行日志的本地落盘与级别",
+    },
 }
 
 FIELD_LABELS: dict[tuple[str, str], LocalizedText] = {
@@ -48,27 +52,27 @@ FIELD_LABELS: dict[tuple[str, str], LocalizedText] = {
     ("trigger", "ai_confirmation_check_all_short_text"): {
         "zh_CN": "AI 判定全部短句",
     },
-    ("trigger", "ai_confirmation_timeout_seconds"): {"zh_CN": "AI 入睡判定超时秒"},
-    ("trigger", "ai_confirmation_max_tokens"): {"zh_CN": "AI 入睡判定输出上限"},
-    ("trigger", "max_trigger_chars"): {"zh_CN": "触发短句最大长度"},
+    ("trigger", "ai_confirmation_timeout_seconds"): {"zh_CN": "AI 入睡判定超时（秒）"},
+    ("trigger", "ai_confirmation_max_tokens"): {"zh_CN": "AI 入睡判定输出上限（token）"},
+    ("trigger", "max_trigger_chars"): {"zh_CN": "触发短句最大字数"},
     ("trigger", "reject_at_component"): {"zh_CN": "排除 @ 消息"},
     ("trigger", "reject_reply_message"): {"zh_CN": "排除引用回复"},
     ("sleep_request", "enabled"): {"zh_CN": "识别用户催睡"},
     ("sleep_request", "require_mention_in_group"): {"zh_CN": "群聊要求提及 Bot"},
-    ("sleep_request", "pending_confirm_seconds"): {"zh_CN": "待确认时长"},
+    ("sleep_request", "pending_confirm_seconds"): {"zh_CN": "待确认时长（秒）"},
     ("sleep_request", "off_window_behavior"): {"zh_CN": "非入睡时间行为"},
     ("sleep_request", "off_window_reply"): {"zh_CN": "非入睡时间固定回复"},
     ("schedule", "sleep_window_start"): {"zh_CN": "允许入睡开始"},
     ("schedule", "sleep_window_end"): {"zh_CN": "允许入睡结束"},
     ("schedule", "target_wake_time"): {"zh_CN": "目标醒来时间"},
-    ("schedule", "min_sleep_minutes"): {"zh_CN": "最短睡眠分钟"},
-    ("schedule", "max_sleep_minutes"): {"zh_CN": "最长睡眠分钟"},
-    ("schedule", "wake_jitter_minutes"): {"zh_CN": "醒来随机浮动"},
+    ("schedule", "min_sleep_minutes"): {"zh_CN": "最短睡眠时长（分钟）"},
+    ("schedule", "max_sleep_minutes"): {"zh_CN": "最长睡眠时长（分钟）"},
+    ("schedule", "wake_jitter_minutes"): {"zh_CN": "醒来时间浮动（分钟）"},
     ("idle_sleep", "enabled"): {"zh_CN": "启用静默入睡"},
-    ("idle_sleep", "silence_minutes"): {"zh_CN": "完全安静入睡分钟"},
-    ("idle_sleep", "idle_minutes"): {"zh_CN": "无参与入睡分钟"},
-    ("idle_sleep", "check_interval_seconds"): {"zh_CN": "检查间隔秒"},
-    ("idle_sleep", "topic_grace_seconds"): {"zh_CN": "话题判断缓冲秒"},
+    ("idle_sleep", "silence_minutes"): {"zh_CN": "完全安静入睡时间（分钟）"},
+    ("idle_sleep", "idle_minutes"): {"zh_CN": "无参与入睡时间（分钟）"},
+    ("idle_sleep", "check_interval_seconds"): {"zh_CN": "检查间隔（秒）"},
+    ("idle_sleep", "topic_grace_seconds"): {"zh_CN": "话题判断缓冲（秒）"},
     ("idle_sleep", "mention_extends_grace"): {"zh_CN": "提及延长缓冲"},
     ("idle_sleep", "at_extends_grace"): {"zh_CN": "@ 延长缓冲"},
     ("idle_sleep", "wake_on_mention_while_sleeping"): {
@@ -94,7 +98,9 @@ FIELD_LABELS: dict[tuple[str, str], LocalizedText] = {
     ("sleep_review", "max_summary_messages_per_chat"): {"zh_CN": "单聊最大消息数"},
     ("sleep_review", "max_summary_chars_per_chat"): {"zh_CN": "单聊最大字符数"},
     ("sleep_review", "max_review_chats_per_wake"): {"zh_CN": "单次最大聊天流"},
-    ("sleep_review", "max_summary_tokens"): {"zh_CN": "单聊总结输出上限"},
+    ("sleep_review", "max_summary_tokens"): {"zh_CN": "单聊总结输出上限（token）"},
+    ("logging", "file_log_enabled"): {"zh_CN": "文件日志"},
+    ("logging", "file_log_level"): {"zh_CN": "文件日志级别"},
 }
 
 ITEM_FIELD_LABELS: dict[tuple[str, str, str], LocalizedText] = {
@@ -103,9 +109,9 @@ ITEM_FIELD_LABELS: dict[tuple[str, str, str], LocalizedText] = {
     ("group_schedule", "group_schedules", "sleep_window_start"): {"zh_CN": "允许入睡开始"},
     ("group_schedule", "group_schedules", "sleep_window_end"): {"zh_CN": "允许入睡结束"},
     ("group_schedule", "group_schedules", "target_wake_time"): {"zh_CN": "目标醒来时间"},
-    ("group_schedule", "group_schedules", "min_sleep_minutes"): {"zh_CN": "最短睡眠分钟"},
-    ("group_schedule", "group_schedules", "max_sleep_minutes"): {"zh_CN": "最长睡眠分钟"},
-    ("group_schedule", "group_schedules", "wake_jitter_minutes"): {"zh_CN": "醒来随机浮动"},
+    ("group_schedule", "group_schedules", "min_sleep_minutes"): {"zh_CN": "最短睡眠时长（分钟）"},
+    ("group_schedule", "group_schedules", "max_sleep_minutes"): {"zh_CN": "最长睡眠时长（分钟）"},
+    ("group_schedule", "group_schedules", "wake_jitter_minutes"): {"zh_CN": "醒来时间浮动（分钟）"},
 }
 
 FIELD_HINTS: dict[tuple[str, str], LocalizedText] = {
@@ -173,10 +179,10 @@ FIELD_HINTS: dict[tuple[str, str], LocalizedText] = {
         "zh_CN": "默认开启。进入睡眠后才启动轻量后台检查，到达预计醒来时间后自动清理睡眠状态；不调用模型、不消耗 token。关闭后只会在消息、命令或其他链路查询睡眠状态时懒唤醒",
     },
     ("control", "force_sleep_commands_enabled"): {
-        "zh_CN": "开启后允许使用 /sleep_now 引导入睡，或使用 /sleep_force、/sleep_force_all 强制入睡",
+        "zh_CN": "开启后允许使用 /sleep now 引导入睡，或使用 /sleep forced、/sleep forced_all 强制入睡",
     },
     ("control", "admin_user_ids"): {
-        "zh_CN": "填写后只有这些用户 ID 可使用 /sleep_now、/sleep_force 和 /sleep_force_all；留空时管理命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用",
+        "zh_CN": "填写后只有这些用户 ID 可使用 /sleep now、/sleep forced 和 /sleep forced_all；留空时管理命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用",
     },
     ("sleep_review", "enabled"): {
         "zh_CN": "开启后，睡眠期间被拦截的消息会保存到本地；对应作用域醒来时按群聊/私聊生成回顾文件，不会向聊天流补发回复",
@@ -192,6 +198,12 @@ FIELD_HINTS: dict[tuple[str, str], LocalizedText] = {
     },
     ("sleep_review", "max_summary_tokens"): {
         "zh_CN": "启用睡醒回顾后生效。每个聊天流总结的输出 token 上限，用于控制输出成本",
+    },
+    ("logging", "file_log_enabled"): {
+        "zh_CN": "开启后插件日志滚动写入插件数据目录的 logs/sleep_manager.log，单文件 512KB、最多 3 个备份，总体积约 2MB 上限，不会无限增长",
+    },
+    ("logging", "file_log_level"): {
+        "zh_CN": "默认 INFO 满足日常排查；需要更细链路时再开 DEBUG，WARNING/ERROR 只记录异常",
     },
 }
 

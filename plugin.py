@@ -8,6 +8,7 @@ from .command_handlers import SleepCommandHandlersMixin
 from .config_models import GoodnightSleepManagerConfig
 from .core_mixin import SleepCoreMixin
 from .hook_handlers import SleepHookHandlersMixin
+from .logging_setup import setup_file_logging, shutdown_file_logging
 from .schema_i18n import apply_config_schema_i18n
 from .state_storage import set_data_dir
 
@@ -34,18 +35,29 @@ class GoodnightSleepManagerPlugin(
         super().__init__()
         self._init_sleep_state()
 
+    def _apply_file_logging(self) -> None:
+        """按当前配置挂载或关闭文件日志"""
+
+        logging_config = self.config.logging
+        if logging_config.file_log_enabled:
+            setup_file_logging(self.ctx.logger, self.ctx.paths.data_dir, logging_config.file_log_level)
+        else:
+            shutdown_file_logging(self.ctx.logger)
+
     async def on_load(self) -> None:
         """插件加载时输出当前状态"""
 
         _setup_plugin_data_dir(self.ctx)
+        self._apply_file_logging()
+        self.ctx.logger.info("睡眠管理Next已加载")
         self._restore_sleep_state()
         self._start_natural_wake_task()
         self._start_idle_sleep_task()
-        self.ctx.logger.info("睡眠管理Next已加载")
 
     async def on_unload(self) -> None:
         """插件卸载时保留未过期睡眠状态，便于重启恢复"""
 
+        shutdown_file_logging(self.ctx.logger)
         await self._stop_natural_wake_task()
         await self._stop_idle_sleep_task()
         await self._handle_plugin_unload()
@@ -56,6 +68,7 @@ class GoodnightSleepManagerPlugin(
         del scope
         del config_data
         del version
+        self._apply_file_logging()
         if self.config.control.persist_sleep_state:
             self._save_sleep_state()
         else:

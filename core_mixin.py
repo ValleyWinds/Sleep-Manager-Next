@@ -1100,9 +1100,9 @@ class SleepCoreMixin:
     def _control_command_names(self) -> set[str]:
         """返回睡眠期间允许穿透入站拦截的控制命令"""
 
-        command_names = {"/sleep_status", "/sleep_wake", "/sleep_wake_all"}
+        command_names = {"/sleep help", "/sleep status", "/sleep wake", "/sleep wake_all"}
         if self.config.control.force_sleep_commands_enabled:
-            command_names.update({"/sleep_now", "/sleep_force", "/sleep_force_all"})
+            command_names.update({"/sleep now", "/sleep forced", "/sleep forced_all"})
         return command_names
 
     def _set_pending_sleep_request(self, message: dict[str, Any], text: str) -> None:

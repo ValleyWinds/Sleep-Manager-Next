@@ -9,20 +9,21 @@
   },
   "license": "GPL-3.0-or-later",
   "urls": {
-    "repository": "https://github.com/ValleyWinds/Sleep-Manager",
-    "homepage": "https://github.com/ValleyWinds/Sleep-Manager",
-    "documentation": "https://github.com/ValleyWinds/Sleep-Manager",
-    "issues": "https://github.com/ValleyWinds/Sleep-Manager/issues"
+    "repository": "https://github.com/ValleyWinds/Sleep-Manager-Next",
+    "homepage": "https://github.com/ValleyWinds/Sleep-Manager-Next",
+    "documentation": "https://github.com/ValleyWinds/Sleep-Manager-Next",
+    "issues": "https://github.com/ValleyWinds/Sleep-Manager-Next/issues"
   },
   "host_application": {
     "min_version": "1.2.5",
-    "max_version": "999.999.999"
+    "max_version": "1.3.99"
   },
   "sdk": {
     "min_version": "2.6.0",
     "max_version": "2.99.99"
   },
   "dependencies": [],
+  "changelog": "CHANGELOG.md",
   "capabilities": [
     "send.text",
     "llm.generate",

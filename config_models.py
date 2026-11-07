@@ -1,6 +1,6 @@
 """睡眠管理Next插件配置模型"""
 
-from typing import Any, List
+from typing import Any, List, Literal
 
 from maibot_sdk import Field, PluginConfigBase
 from pydantic import field_validator
@@ -87,7 +87,7 @@ class SleepRequestConfig(PluginConfigBase):
         description="用户消息命中这些规则时，视为在建议 Bot 睡觉",
     )
     require_mention_in_group: bool = Field(default=True, description="群聊里需要 @ 或提及 Bot 才识别模糊催睡")
-    pending_confirm_seconds: int = Field(default=600, description="合适时间催睡后，等待 Bot 自己说晚安的确认时长")
+    pending_confirm_seconds: int = Field(default=600, description="合适时间催睡后，等待 Bot 自己说晚安的确认时长（秒）")
     off_window_behavior: str = Field(default="reply", description="不合适时间被催睡时的行为：reply/silent/pass")
     off_window_reply: str = Field(default="", description="不合适时间催睡时的固定回复；留空时按人格和表达风格生成")
 
@@ -102,9 +102,9 @@ class ScheduleConfig(PluginConfigBase):
     sleep_window_start: str = Field(default="22:30", description="允许入睡的开始时间，HH:MM")
     sleep_window_end: str = Field(default="07:00", description="允许入睡的结束时间，HH:MM，可跨午夜")
     target_wake_time: str = Field(default="07:30", description="倾向醒来的时间，HH:MM")
-    min_sleep_minutes: int = Field(default=45, description="最短睡眠分钟数")
-    max_sleep_minutes: int = Field(default=480, description="最长睡眠分钟数")
-    wake_jitter_minutes: int = Field(default=35, description="醒来时间随机浮动分钟数")
+    min_sleep_minutes: int = Field(default=45, description="最短睡眠时长（分钟）")
+    max_sleep_minutes: int = Field(default=480, description="最长睡眠时长（分钟）")
+    wake_jitter_minutes: int = Field(default=35, description="醒来时间随机浮动（分钟）")
 
 
 class IdleSleepConfig(PluginConfigBase):
@@ -136,9 +136,9 @@ class GroupScheduleEntryConfig(PluginConfigBase):
     sleep_window_start: str = Field(default="22:30", description="允许入睡开始，HH:MM")
     sleep_window_end: str = Field(default="07:00", description="允许入睡结束，HH:MM，可跨午夜")
     target_wake_time: str = Field(default="07:30", description="目标醒来时间，HH:MM")
-    min_sleep_minutes: int = Field(default=45, description="最短睡眠分钟数")
-    max_sleep_minutes: int = Field(default=480, description="最长睡眠分钟数")
-    wake_jitter_minutes: int = Field(default=35, description="醒来时间随机浮动分钟数")
+    min_sleep_minutes: int = Field(default=45, description="最短睡眠时长（分钟）")
+    max_sleep_minutes: int = Field(default=480, description="最长睡眠时长（分钟）")
+    wake_jitter_minutes: int = Field(default=35, description="醒来时间随机浮动（分钟）")
 
 
 class GroupScheduleConfig(PluginConfigBase):
@@ -171,13 +171,13 @@ class SleepControlConfig(PluginConfigBase):
     planner_control_enabled: bool = Field(default=True, description="睡眠期间清空 Planner 工具并丢弃 Planner 响应")
     control_commands_enabled: bool = Field(
         default=True,
-        description="允许 /sleep_status、/sleep_wake 和 /sleep_wake_all 控制命令",
+        description="允许 /sleep help、/sleep status、/sleep wake 和 /sleep wake_all 控制命令",
     )
     persist_sleep_state: bool = Field(default=True, description="重启后恢复未过期的睡眠状态")
     natural_wake_enabled: bool = Field(default=True, description="到达预计醒来时间后由后台任务自动唤醒")
     force_sleep_commands_enabled: bool = Field(
         default=True,
-        description="允许 /sleep_now、/sleep_force 和 /sleep_force_all 管理命令",
+        description="允许 /sleep now、/sleep forced 和 /sleep forced_all 管理命令",
     )
     admin_user_ids: List[str] = Field(default_factory=list, description="允许使用管理入睡命令的用户 ID；留空时管理命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用")
 
@@ -196,6 +196,23 @@ class SleepReviewConfig(PluginConfigBase):
     max_summary_tokens: int = Field(default=500, description="每个聊天流总结最多输出 token 数")
 
 
+class LoggingConfig(PluginConfigBase):
+    """插件文件日志配置。"""
+
+    __ui_label__ = "日志"
+    __ui_icon__ = "scroll-text"
+    __ui_order__ = 8
+
+    file_log_enabled: bool = Field(
+        default=True,
+        description="把插件日志滚动写入插件数据目录的 logs/ 下（单文件 512KB，最多 3 个备份，约 2MB 上限）",
+    )
+    file_log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
+        default="INFO",
+        description="文件日志级别；日常排查用 INFO，需要更细链路时再开 DEBUG",
+    )
+
+
 class GoodnightSleepManagerConfig(PluginConfigBase):
     """睡眠管理Next完整配置。"""
 
@@ -207,3 +224,4 @@ class GoodnightSleepManagerConfig(PluginConfigBase):
     group_schedule: GroupScheduleConfig = Field(default_factory=GroupScheduleConfig)
     control: SleepControlConfig = Field(default_factory=SleepControlConfig)
     sleep_review: SleepReviewConfig = Field(default_factory=SleepReviewConfig)
+    logging: LoggingConfig = Field(default_factory=LoggingConfig)

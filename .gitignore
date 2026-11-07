@@ -36,3 +36,9 @@ dist/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# ZCode workspace artifacts
+.zcode/
+.zcodeignore
+AGENTS.md
+uv.lock
