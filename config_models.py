@@ -175,11 +175,15 @@ class SleepControlConfig(PluginConfigBase):
     )
     persist_sleep_state: bool = Field(default=True, description="重启后恢复未过期的睡眠状态")
     natural_wake_enabled: bool = Field(default=True, description="到达预计醒来时间后由后台任务自动唤醒")
-    force_sleep_commands_enabled: bool = Field(
+    admin_sleep_commands_enabled: bool = Field(
         default=True,
         description="允许 /sleep now、/sleep forced 和 /sleep forced_all 管理命令",
     )
-    admin_user_ids: List[str] = Field(default_factory=list, description="允许使用管理入睡命令的用户 ID；留空时管理命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用")
+    silent_permission_denial: bool = Field(
+        default=False,
+        description="开启后无权限命令不回复任何提示，仅静默拦截并记录日志",
+    )
+    admin_user_ids: List[str] = Field(default_factory=list, description="允许使用 /sleep 命令的用户 ID；留空时所有命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用")
 
 
 class SleepReviewConfig(PluginConfigBase):

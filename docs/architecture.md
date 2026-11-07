@@ -36,7 +36,7 @@
 
 - **Hook 而非 EventHandler**：主程序 `ON_MESSAGE` 已无发射点，入站拦截只能靠 `chat.receive.*` Hook；`expression.learn.*` 与 `maisaka.planner.*` 是宿主仅有的对应挂点。
 - **planner.before_request 只改写不 abort**：该 Hook 不允许 abort（Timing Gate 也复用它），睡眠压制靠改写请求字段实现；改写时 `item_schema_version` 原样保留。
-- **命令双层开关**：`control_commands_enabled` 只控制「睡眠期间是否穿透入站拦截」，命令注册本身不受它影响；`force_sleep_commands_enabled` + `admin_user_ids` 控制管理命令可用性，管理员留空 = 默认全禁（安全默认）。
+- **命令三层权限**：全部 `/sleep` 命令统一过 `admin_user_ids` 名单门（留空 = 对所有人不可用，默认安全），被拒时按 `silent_permission_denial` 回复提示或零回复拦截；管理命令（now/forced/forced_all）在此之上再受 `admin_sleep_commands_enabled` 开关控制。`control_commands_enabled` 只控制「睡眠期间是否穿透入站拦截」，不做权限过滤——非睡眠期没有入站拦截层，权限只能放在命令层一处生效。
 - **`/sleep now` 不拦截消息**：命令返回三元组第三位为 `False`，让消息放行进入 Planner，催睡引导才能生效。
 - **AI 判定 + 正则兜底**：AI 不可用或返回不确定时回落正则；为防被诱导入睡，默认只接受短句、自我入睡、群体收尾晚安，带 @ / 引用回复 / 对个人晚安不触发。
 - **作用域模型**：`group:<群号>` / 私聊聊天流 / `all` 三层；分群作息命中时用独立配置，未命中群也默认独立作用域（可关）。

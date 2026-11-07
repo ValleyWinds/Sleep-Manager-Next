@@ -1085,10 +1085,10 @@ class SleepCoreMixin:
             }
         return message
 
-    def _can_use_force_sleep_command(self, user_id: str) -> bool:
-        """判断用户是否允许使用强制入睡类命令
+    def _can_use_sleep_command(self, user_id: str) -> bool:
+        """判断用户是否允许使用 /sleep 命令（全部命令统一走这道门）
 
-        管理员 ID 列表为空时，管理命令对所有人不可用（默认安全）。
+        管理员 ID 列表为空时，所有命令对所有人不可用（默认安全）。
         需要开放时，在配置里填写允许使用的用户 ID。
         """
 
@@ -1097,11 +1097,50 @@ class SleepCoreMixin:
             return False
         return user_id.strip() in allowed_user_ids
 
+    async def _deny_command(self, stream_id: str, user_id: str, command_name: str) -> tuple[bool, str, bool]:
+        """处理无权限命令：按静默开关决定回复提示还是零回复拦截。
+
+        静默开启时不发送任何消息，仅记录日志并返回拦截三元组，
+        避免 Bot 因命令回复暴露插件的存在。
+        """
+
+        silent = self.config.control.silent_permission_denial
+        self._get_logger().warning(
+            f"命令 {command_name} 被权限拒绝: user={user_id or '未知'} stream={stream_id or '未知'} "
+            f"silent={silent}"
+        )
+        if silent:
+            return True, "", True
+        message = "[睡眠管理] 你没有使用睡眠管理命令的权限"
+        await self.ctx.send.text(message, stream_id, storage_message=False)
+        return True, message, True
+
+    async def _check_command_permission(self, stream_id: str, user_id: str, command_name: str) -> str | None:
+        """管理命令的两层检查：admin_sleep_commands_enabled 开关 + 名单门。
+
+        返回 None 表示通过；返回字符串表示已按静默开关处理完毕
+        （回复提示或静默拦截），调用方以该字符串作为响应消息返回。
+        """
+
+        if not self.config.control.admin_sleep_commands_enabled:
+            self._get_logger().info(
+                f"命令 {command_name} 未执行：管理入睡命令已在配置中关闭 stream={stream_id or '未知'}"
+            )
+            if self.config.control.silent_permission_denial:
+                return ""
+            message = "[睡眠管理] 管理入睡命令已关闭"
+            await self.ctx.send.text(message, stream_id, storage_message=False)
+            return message
+        if not self._can_use_sleep_command(user_id):
+            deny_result = await self._deny_command(stream_id, user_id, command_name)
+            return deny_result[1]
+        return None
+
     def _control_command_names(self) -> set[str]:
         """返回睡眠期间允许穿透入站拦截的控制命令"""
 
         command_names = {"/sleep help", "/sleep status", "/sleep wake", "/sleep wake_all"}
-        if self.config.control.force_sleep_commands_enabled:
+        if self.config.control.admin_sleep_commands_enabled:
             command_names.update({"/sleep now", "/sleep forced", "/sleep forced_all"})
         return command_names
 

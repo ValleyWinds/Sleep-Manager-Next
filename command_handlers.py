@@ -3,6 +3,9 @@
 命令回复统一 storage_message=False：不写入消息库，避免宿主从库中恢复
 会话历史时把这些系统文案当成麦麦自己说过的话（is_self_message）带进
 Planner / Replyer 上下文。实时显示不受影响。
+
+全部命令统一过 admin_user_ids 名单门（留空 = 对所有人不可用，默认安全）；
+被拒绝时按 silent_permission_denial 决定回复提示还是零回复静默拦截。
 """
 
 from datetime import datetime
@@ -21,6 +24,7 @@ class SleepCommandHandlersMixin:
         self,
         stream_id: str = "",
         group_id: str = "",
+        user_id: str = "",
         **kwargs: Any,
     ) -> tuple[bool, str, bool]:
         """打印当前可用的全部命令帮助"""
@@ -28,6 +32,10 @@ class SleepCommandHandlersMixin:
         del kwargs
 
         self.ctx.logger.info(f"收到命令 /sleep help: stream={stream_id or '未知'}")
+        self._allow_control_reply()
+        if not self._can_use_sleep_command(user_id):
+            return await self._deny_command(stream_id, user_id, "/sleep help")
+
         lines = [
             "[睡眠管理] 命令帮助",
             "/sleep help - 查看本帮助",
@@ -35,7 +43,7 @@ class SleepCommandHandlersMixin:
             "/sleep wake - 手动唤醒当前作用域",
             "/sleep wake_all - 手动唤醒全部聊天流",
         ]
-        if self.config.control.force_sleep_commands_enabled:
+        if self.config.control.admin_sleep_commands_enabled:
             lines.extend(
                 [
                     "/sleep now - 允许入睡时间内引导 Bot 自己决定是否入睡（管理命令）",
@@ -54,6 +62,7 @@ class SleepCommandHandlersMixin:
         self,
         stream_id: str = "",
         group_id: str = "",
+        user_id: str = "",
         **kwargs: Any,
     ) -> tuple[bool, str, bool]:
         """查看当前睡眠状态"""
@@ -62,6 +71,9 @@ class SleepCommandHandlersMixin:
 
         self.ctx.logger.info(f"收到命令 /sleep status: stream={stream_id or '未知'}")
         self._allow_control_reply()
+        if not self._can_use_sleep_command(user_id):
+            return await self._deny_command(stream_id, user_id, "/sleep status")
+
         command_message = self._message_stub_for_command(stream_id, group_id)
         scope_key, scope_label = self._sleep_scope_for_message(command_message)
         sleep_record = self._active_sleep_record(message=command_message)
@@ -87,6 +99,7 @@ class SleepCommandHandlersMixin:
         self,
         stream_id: str = "",
         group_id: str = "",
+        user_id: str = "",
         **kwargs: Any,
     ) -> tuple[bool, str, bool]:
         """手动解除睡眠状态"""
@@ -95,6 +108,9 @@ class SleepCommandHandlersMixin:
 
         self.ctx.logger.info(f"收到命令 /sleep wake: stream={stream_id or '未知'}")
         self._allow_control_reply()
+        if not self._can_use_sleep_command(user_id):
+            return await self._deny_command(stream_id, user_id, "/sleep wake")
+
         command_message = self._message_stub_for_command(stream_id, group_id)
         scope_key, scope_label = self._sleep_scope_for_message(command_message)
         all_sleep_record = self._active_sleep_record(scope_key=ALL_SLEEP_SCOPE)
@@ -118,6 +134,7 @@ class SleepCommandHandlersMixin:
         self,
         stream_id: str = "",
         group_id: str = "",
+        user_id: str = "",
         **kwargs: Any,
     ) -> tuple[bool, str, bool]:
         """手动解除全部睡眠状态"""
@@ -127,6 +144,9 @@ class SleepCommandHandlersMixin:
 
         self.ctx.logger.info(f"收到命令 /sleep wake_all: stream={stream_id or '未知'}")
         self._allow_control_reply()
+        if not self._can_use_sleep_command(user_id):
+            return await self._deny_command(stream_id, user_id, "/sleep wake_all")
+
         wake_count = self._wake_all_sleep_records("手动全部唤醒")
         if wake_count:
             message = f"[睡眠管理] 已手动唤醒全部聊天流\n已解除睡眠作用域: {wake_count} 个"
@@ -149,16 +169,9 @@ class SleepCommandHandlersMixin:
 
         self._allow_control_reply()
         self.ctx.logger.info(f"收到命令 /sleep now: stream={stream_id or '未知'} user={user_id or '未知'}")
-        if not self.config.control.force_sleep_commands_enabled:
-            message = "[睡眠管理] 管理入睡命令已关闭"
-            await self.ctx.send.text(message, stream_id, storage_message=False)
-            return True, message, True
-
-        if not self._can_use_force_sleep_command(user_id):
-            self.ctx.logger.warning(f"命令 /sleep now 被权限拒绝: user={user_id or '未知'}")
-            message = "[睡眠管理] 你没有使用管理入睡命令的权限"
-            await self.ctx.send.text(message, stream_id, storage_message=False)
-            return True, message, True
+        deny_message = await self._check_command_permission(stream_id, user_id, "/sleep now")
+        if deny_message is not None:
+            return True, deny_message, True
 
         command_message = self._message_stub_for_command(stream_id, group_id)
         sleep_record = self._active_sleep_record(message=command_message)
@@ -245,18 +258,11 @@ class SleepCommandHandlersMixin:
         """执行无视时间窗口的强制入睡命令。"""
 
         self._allow_control_reply()
-        if not self.config.control.force_sleep_commands_enabled:
-            message = "[睡眠管理] 管理入睡命令已关闭"
-            await self.ctx.send.text(message, stream_id, storage_message=False)
-            return True, message, True
-
-        if not self._can_use_force_sleep_command(user_id):
-            self.ctx.logger.warning(
-                f"命令 /sleep {'forced_all' if force_all else 'forced'} 被权限拒绝: user={user_id or '未知'}"
-            )
-            message = "[睡眠管理] 你没有使用管理入睡命令的权限"
-            await self.ctx.send.text(message, stream_id, storage_message=False)
-            return True, message, True
+        deny_message = await self._check_command_permission(
+            stream_id, user_id, "/sleep forced_all" if force_all else "/sleep forced"
+        )
+        if deny_message is not None:
+            return True, deny_message, True
 
         command_message = self._message_stub_for_command(stream_id, group_id)
         sleep_record = (

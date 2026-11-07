@@ -92,7 +92,8 @@ FIELD_LABELS: dict[tuple[str, str], LocalizedText] = {
     ("control", "control_commands_enabled"): {"zh_CN": "允许控制命令"},
     ("control", "persist_sleep_state"): {"zh_CN": "持久化睡眠状态"},
     ("control", "natural_wake_enabled"): {"zh_CN": "自然到点醒来"},
-    ("control", "force_sleep_commands_enabled"): {"zh_CN": "允许管理入睡命令"},
+    ("control", "admin_sleep_commands_enabled"): {"zh_CN": "允许管理入睡命令"},
+    ("control", "silent_permission_denial"): {"zh_CN": "无权限静默拦截"},
     ("control", "admin_user_ids"): {"zh_CN": "管理员用户 ID"},
     ("sleep_review", "enabled"): {"zh_CN": "启用睡醒回顾"},
     ("sleep_review", "max_summary_messages_per_chat"): {"zh_CN": "单聊最大消息数"},
@@ -178,11 +179,14 @@ FIELD_HINTS: dict[tuple[str, str], LocalizedText] = {
     ("control", "natural_wake_enabled"): {
         "zh_CN": "默认开启。进入睡眠后才启动轻量后台检查，到达预计醒来时间后自动清理睡眠状态；不调用模型、不消耗 token。关闭后只会在消息、命令或其他链路查询睡眠状态时懒唤醒",
     },
-    ("control", "force_sleep_commands_enabled"): {
+    ("control", "admin_sleep_commands_enabled"): {
         "zh_CN": "开启后允许使用 /sleep now 引导入睡，或使用 /sleep forced、/sleep forced_all 强制入睡",
     },
+    ("control", "silent_permission_denial"): {
+        "zh_CN": "默认关闭，无权限使用命令时会回复一句无权限提示；开启后所有无权限命令零回复、仅拦截并记录日志，适合不希望 Bot 因命令暴露插件存在的场景",
+    },
     ("control", "admin_user_ids"): {
-        "zh_CN": "填写后只有这些用户 ID 可使用 /sleep now、/sleep forced 和 /sleep forced_all；留空时管理命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用",
+        "zh_CN": "填写后只有这些用户 ID 可使用全部 /sleep 命令；留空时所有命令对所有人不可用（默认安全），需填写至少一个用户 ID 才能启用",
     },
     ("sleep_review", "enabled"): {
         "zh_CN": "开启后，睡眠期间被拦截的消息会保存到本地；对应作用域醒来时按群聊/私聊生成回顾文件，不会向聊天流补发回复",
