@@ -1,4 +1,9 @@
-"""睡眠管理Next命令处理器"""
+"""睡眠管理Next命令处理器
+
+命令回复统一 storage_message=False：不写入消息库，避免宿主从库中恢复
+会话历史时把这些系统文案当成麦麦自己说过的话（is_self_message）带进
+Planner / Replyer 上下文。实时显示不受影响。
+"""
 
 from datetime import datetime
 from typing import Any
@@ -41,7 +46,7 @@ class SleepCommandHandlersMixin:
         else:
             lines.append("管理入睡命令已在配置中关闭")
         message = "\n".join(lines)
-        await self.ctx.send.text(message, stream_id)
+        await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
     @Command("sleep_status", description="查看睡眠管理Next状态", pattern=r"^/sleep status\s*$")
@@ -74,7 +79,7 @@ class SleepCommandHandlersMixin:
                 f"作用域: {scope_label}\n"
                 f"持久化: {'已启用' if self.config.control.persist_sleep_state else '已关闭'}"
             )
-        await self.ctx.send.text(message, stream_id)
+        await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
     @Command("sleep_wake", description="手动唤醒睡眠管理Next", pattern=r"^/sleep wake\s*$")
@@ -105,7 +110,7 @@ class SleepCommandHandlersMixin:
             message = f"[睡眠管理] 已手动唤醒\n作用域: {sleep_record.scope_label}"
         else:
             message = f"[睡眠管理] 当前本来就是醒着\n作用域: {scope_label}"
-        await self.ctx.send.text(message, stream_id)
+        await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
     @Command("sleep_wake_all", description="手动唤醒全部聊天流", pattern=r"^/sleep wake_all\s*$")
@@ -127,7 +132,7 @@ class SleepCommandHandlersMixin:
             message = f"[睡眠管理] 已手动唤醒全部聊天流\n已解除睡眠作用域: {wake_count} 个"
         else:
             message = "[睡眠管理] 当前没有正在生效的睡眠状态"
-        await self.ctx.send.text(message, stream_id)
+        await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
 
     @Command("sleep_now", description="按当前作息引导 Bot 自己决定是否入睡", pattern=r"^/sleep now\s*$")
@@ -146,13 +151,13 @@ class SleepCommandHandlersMixin:
         self.ctx.logger.info(f"收到命令 /sleep now: stream={stream_id or '未知'} user={user_id or '未知'}")
         if not self.config.control.force_sleep_commands_enabled:
             message = "[睡眠管理] 管理入睡命令已关闭"
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         if not self._can_use_force_sleep_command(user_id):
             self.ctx.logger.warning(f"命令 /sleep now 被权限拒绝: user={user_id or '未知'}")
             message = "[睡眠管理] 你没有使用管理入睡命令的权限"
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         command_message = self._message_stub_for_command(stream_id, group_id)
@@ -163,7 +168,7 @@ class SleepCommandHandlersMixin:
                 f"作用域: {sleep_record.scope_label}\n"
                 f"预计醒来时间: {self._format_datetime(sleep_record.sleep_until)}"
             )
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         now = datetime.now()
@@ -175,7 +180,7 @@ class SleepCommandHandlersMixin:
                 f"允许入睡: {schedule_config.sleep_window_start} - {schedule_config.sleep_window_end}\n"
                 "需要无视时间窗口测试时，请使用 /sleep forced"
             )
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         self._set_pending_sleep_request(command_message, "/sleep now 管理命令催睡")
@@ -183,7 +188,7 @@ class SleepCommandHandlersMixin:
             "[睡眠管理] 已记录管理员催睡，将交给主链路判断是否入睡\n"
             f"生效作息: {schedule_source}"
         )
-        await self.ctx.send.text(message, stream_id)
+        await self.ctx.send.text(message, stream_id, storage_message=False)
         # 拦截位必须为 False：放行这条消息才能触发 Planner，
         # planner.before_request 才有机会注入催睡上下文（详见 core_mixin 的
         # _build_pending_sleep_request_planner_context）。拦截会让催睡引导失效。
@@ -242,7 +247,7 @@ class SleepCommandHandlersMixin:
         self._allow_control_reply()
         if not self.config.control.force_sleep_commands_enabled:
             message = "[睡眠管理] 管理入睡命令已关闭"
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         if not self._can_use_force_sleep_command(user_id):
@@ -250,7 +255,7 @@ class SleepCommandHandlersMixin:
                 f"命令 /sleep {'forced_all' if force_all else 'forced'} 被权限拒绝: user={user_id or '未知'}"
             )
             message = "[睡眠管理] 你没有使用管理入睡命令的权限"
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         command_message = self._message_stub_for_command(stream_id, group_id)
@@ -265,7 +270,7 @@ class SleepCommandHandlersMixin:
                 f"作用域: {sleep_record.scope_label}\n"
                 f"预计醒来时间: {self._format_datetime(sleep_record.sleep_until)}"
             )
-            await self.ctx.send.text(message, stream_id)
+            await self.ctx.send.text(message, stream_id, storage_message=False)
             return True, message, True
 
         now = datetime.now()
@@ -291,5 +296,5 @@ class SleepCommandHandlersMixin:
         )
         if replaced_count:
             message = f"{message}\n已覆盖原有睡眠作用域: {replaced_count} 个"
-        await self.ctx.send.text(message, stream_id)
+        await self.ctx.send.text(message, stream_id, storage_message=False)
         return True, message, True
