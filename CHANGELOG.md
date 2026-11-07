@@ -2,18 +2,21 @@
 
 逐版本记录用户能感知的更新要点；版本号提升与依赖更新不单独立目。
 
-## 未发布
+## v1.4.0
 
 **主要功能**
 
 - 触发命令全面改名：去掉下划线改为空格分隔（如 `/sleep_status` → `/sleep status`），`force` 系列更名 `forced`（`/sleep forced`、`/sleep forced_all`），全部唤醒/入睡命令改为 `/sleep wake_all`、`/sleep forced_all`
 - 新增 `/sleep help` 命令，随时查看当前可用的命令帮助；睡眠期间配合"允许控制命令"也能查询
 - 新增本地文件日志：滚动写入插件数据目录的 `logs/sleep_manager.log`，排查行为问题不用再翻主程序日志；单文件 512KB、最多 3 个备份，不会无限增长，级别与开关可在 WebUI"日志"节调整
+- 命令回复不再进入 Bot 的对话上下文，麦麦不会再把命令说明当成自己说过的话
 
 **细节**
 
+- 插件中心的命令列表与实际触发命令保持一致（显示 `sleep status` 等触发词形态）
+- 命令调用也会记录到本地日志（含来源聊天流与用户），权限拒绝记 warning
 - 仓库迁移至 `ValleyWinds/Sleep-Manager-Next`，manifest 链接与安装地址同步更新
-- 主程序兼容上界收紧为 `1.3.99`（跟随 MaiBot 1.3.x 小版本线）
+- 主程序兼容范围调整为 `1.2.5` 至 `1.3.99`，已在 MaiBot 1.3.19 实测
 - LICENSE 更新：本仓库采用 GPL-3.0-or-later 官方全文；上游原始代码的 MIT 许可声明以 `LICENSE-upstream` 副本保留
 - README 重写，补充日志说明与本地测试指引
 
