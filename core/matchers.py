@@ -3,7 +3,7 @@
 from logging import Logger
 from typing import Any
 
-from .config_models import SleepRequestConfig, TriggerConfig
+from ..config.config_models import SleepRequestConfig, TriggerConfig
 from .message_utils import (
     has_at_component,
     has_reply_component,

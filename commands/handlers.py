@@ -13,7 +13,7 @@ from typing import Any
 
 from maibot_sdk import Command
 
-from .core_mixin import ALL_SLEEP_SCOPE
+from ..core.mixin import ALL_SLEEP_SCOPE
 
 
 class SleepCommandHandlersMixin:

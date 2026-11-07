@@ -8,7 +8,7 @@ import asyncio
 import itertools
 
 from .context_items import extract_item_tool_names
-from .confirmation_judge import (
+from ..features.confirmation_judge import (
     NOT_SLEEP_DECISION,
     SLEEP_DECISION,
     judge_sleep_confirmation,
@@ -26,9 +26,9 @@ from .message_utils import (
     message_session_id,
     normalize_text,
 )
-from .reply_generator import generate_off_window_reply
+from ..features.reply_generator import generate_off_window_reply
 from .schedule_utils import choose_sleep_until, format_datetime, is_inside_sleep_window
-from .sleep_review import append_sleep_review_message, generate_sleep_review
+from ..features.sleep_review import append_sleep_review_message, generate_sleep_review
 from .state import SleepRecord, SleepState
 from .state_storage import clear_persisted_sleep_state, load_persisted_sleep_records, save_persisted_sleep_records
 

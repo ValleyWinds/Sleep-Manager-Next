@@ -11,7 +11,7 @@ import pytest
 from maibot_sdk.components import _COMPONENT_INFO_ATTR
 from maibot_sdk.context import PluginContext
 
-from schedule_utils import choose_sleep_until, format_datetime, is_inside_sleep_window, parse_clock
+from core.schedule_utils import choose_sleep_until, format_datetime, is_inside_sleep_window, parse_clock
 
 EXPECTED_COMMAND_TEXTS = {
     "/sleep help",

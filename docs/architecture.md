@@ -4,23 +4,13 @@
 
 ## 模块结构
 
-- `plugin.py` — 插件入口：生命周期（on_load / on_unload / on_config_update）、文件日志挂载、WebUI Schema 本地化
-- `config_models.py` — 配置模型（8 个业务节 + 日志节），全部字段有默认值，WebUI 元数据走 `__ui_label__` / `json_schema_extra`
-- `schema_i18n.py` — WebUI 配置表单的中文文案表（`(节, 字段) → zh_CN`）与隐藏字段清单
-- `hook_handlers.py` — 6 个 `@HookHandler` 入口：出站入睡检测、入站双层拦截、表达学习拦截、Planner 请求/响应控制
-- `command_handlers.py` — 7 条 `/sleep` 命令的 `@Command` 声明与处理；help / status / wake / wake_all / now / forced / forced_all
-- `core_mixin.py` — 核心逻辑：睡眠状态机、作用域管理、入睡判定调度、拦截判断、控制命令白名单、自然唤醒与静默入睡后台任务
-- `confirmation_judge.py` — AI 入睡确认判定（只接受 `SLEEP / NOT_SLEEP / UNSURE`），LLM 调用走 `ctx.llm.generate`
-- `matchers.py` / `pattern_utils.py` — 正则规则匹配与非法正则跳过
-- `message_utils.py` — 消息字段解析（文本提取、会话/群/用户 ID、@ 检测等）
-- `context_items.py` — Planner Hook 的 Context Item 构造与解析（催睡上下文注入）
-- `schedule_utils.py` — 作息窗口（支持跨午夜）与醒来时间计算，纯函数
-- `state.py` / `state_storage.py` — 运行期状态结构与持久化（`data/plugins/<id>/sleep_state.json`）
-- `sleep_review.py` — 睡醒回顾：拦截消息留存与醒来后本地总结报告
-- `reply_generator.py` — 非入睡时间催睡的回复生成（固定文案或 LLM 生成）
-- `defaults.py` — 默认正则规则与关键词数据
-- `logging_setup.py` — 滚动文件日志（`RotatingFileHandler`，512KB × 3 备份）
-- `tests/` — pytest：conftest 隔离加载 + 配置注入 / 命令注册表 / 帮助命令 / 纯函数测试
+- `plugin.py` — 插件入口（必须在根目录）：生命周期（on_load / on_unload / on_config_update）、文件日志挂载、WebUI Schema 本地化
+- `config/` — 配置模型（8 个业务节 + 日志节）与 WebUI 文案：`config_models.py`（字段全默认值，UI 元数据走 `__ui_label__` / `json_schema_extra`）、`schema_i18n.py`（中文文案表 `(节, 字段) → zh_CN`）、`defaults.py`（默认正则规则与关键词数据）
+- `commands/handlers.py` — 7 条 `/sleep` 命令的 `@Command` 声明与处理：help / status / wake / wake_all / now / forced / forced_all
+- `hooks/handlers.py` — 6 个 `@HookHandler` 入口：出站入睡检测、入站双层拦截、表达学习拦截、Planner 请求/响应控制
+- `core/` — 核心状态机与工具：`mixin.py`（睡眠状态机、作用域、入睡判定调度、拦截判断、命令白名单、后台任务）、`state.py` / `state_storage.py`（运行期状态与持久化 `sleep_state.json`）、`logging_setup.py`（滚动文件日志 512KB × 3）、`schedule_utils.py`（作息窗口与醒来时间，纯函数）、`matchers.py` / `pattern_utils.py`（正则匹配）、`message_utils.py`（消息字段解析）、`context_items.py`（Planner Context Item 构造解析）
+- `features/` — 特性模块：`confirmation_judge.py`（AI 入睡确认判定，`SLEEP / NOT_SLEEP / UNSURE`）、`sleep_review.py`（睡醒回顾留存与总结）、`reply_generator.py`（非入睡时间催睡回复生成）
+- `tests/` — pytest：conftest 隔离加载 + 配置注入 / 命令注册表 / 权限门 / 纯函数测试
 
 ## 数据流
 

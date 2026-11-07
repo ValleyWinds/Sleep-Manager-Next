@@ -6,7 +6,7 @@ from typing import Any
 from maibot_sdk import HookHandler
 from maibot_sdk.types import HookMode, HookOrder
 
-from .context_items import build_system_message_item, extract_item_tool_names
+from ..core.context_items import build_system_message_item, extract_item_tool_names
 
 TIMING_GATE_TOOL_NAMES = ("continue", "no_action", "wait")
 SLEEPING_NO_ACTION_PROMPT = (

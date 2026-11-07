@@ -6,7 +6,7 @@ import asyncio
 import re
 import time
 
-from .message_utils import normalize_text
+from ..core.message_utils import normalize_text
 
 SLEEP_DECISION = "SLEEP"
 NOT_SLEEP_DECISION = "NOT_SLEEP"

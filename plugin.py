@@ -4,13 +4,13 @@ from typing import Any
 
 from maibot_sdk import MaiBotPlugin
 
-from .command_handlers import SleepCommandHandlersMixin
-from .config_models import GoodnightSleepManagerConfig
-from .core_mixin import SleepCoreMixin
-from .hook_handlers import SleepHookHandlersMixin
-from .logging_setup import setup_file_logging, shutdown_file_logging
-from .schema_i18n import apply_config_schema_i18n
-from .state_storage import set_data_dir
+from .commands.handlers import SleepCommandHandlersMixin
+from .config.config_models import GoodnightSleepManagerConfig
+from .core.mixin import SleepCoreMixin
+from .hooks.handlers import SleepHookHandlersMixin
+from .core.logging_setup import setup_file_logging, shutdown_file_logging
+from .config.schema_i18n import apply_config_schema_i18n
+from .core.state_storage import set_data_dir
 
 
 def _setup_plugin_data_dir(ctx: Any) -> None:

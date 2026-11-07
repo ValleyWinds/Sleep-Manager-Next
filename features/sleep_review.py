@@ -8,9 +8,9 @@ from typing import Any, Dict, List
 import json
 import re
 
-from .message_utils import extract_text, message_group_id, message_session_id
-from .state import SleepRecord
-from .state_storage import get_plugin_data_dir
+from ..core.message_utils import extract_text, message_group_id, message_session_id
+from ..core.state import SleepRecord
+from ..core.state_storage import get_plugin_data_dir
 
 REVIEW_DIR_NAME = "sleep_review"
 
